@@ -27,6 +27,8 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
@@ -77,7 +79,13 @@ public class MainActivity extends Activity {
 
 class MainView extends LinearLayout {
 	private Server server;
+
+	// IN
 	private double temperature;
+
+	// OUT
+	private int motor;
+	private int led;
 
 	public MainView(Context context, Server server) {
 		super(context);
@@ -98,6 +106,52 @@ class MainView extends LinearLayout {
 		LayoutInflater.from(context)
 				.inflate(R.layout.activity_main, this, true);
 		setWillNotDraw(false); // Need for call onDraw via invalidate
+
+		SeekBar motorSeekbar = (SeekBar) findViewById(R.id.motor_seekbar);
+		motorSeekbar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+			}
+
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+			}
+
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress,
+					boolean fromUser) {
+				motor = progress;
+				send();
+			}
+		});
+
+		SeekBar ledSeekbar = (SeekBar) findViewById(R.id.led_seekbar);
+		ledSeekbar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+			}
+
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+			}
+
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress,
+					boolean fromUser) {
+				led = progress;
+				send();
+			}
+		});
+	}
+
+	private void send() {
+		try {
+			server.send(new byte[] { (byte) motor, (byte) led });
+		} catch (IOException e) {
+			Log.e("microbridge", "problem sending TCP message", e);
+		}
 	}
 
 	private void update(int thermoValue) {
@@ -133,7 +187,7 @@ class MainView extends LinearLayout {
 		}
 
 		// Draw
-		postInvalidate();
+		postInvalidate();	
 	}
 
 	@Override

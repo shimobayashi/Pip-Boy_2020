@@ -19,4 +19,20 @@
         android:layout_height="wrap_content"
         android:text="thermo_label" />
 
+    <SeekBar
+        android:id="@+id/motor_seekbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="32dip"
+        android:max="255"
+        android:progress="127" />
+
+    <SeekBar
+        android:id="@+id/led_seekbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="32dip"
+        android:max="255"
+        android:progress="0" />
+
 </LinearLayout>
