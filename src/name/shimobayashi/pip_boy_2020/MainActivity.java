@@ -81,7 +81,10 @@ class MainView extends LinearLayout {
 	private Server server;
 
 	// IN
-	private double temperature;
+	private double temperature; // C
+	private double humidity; // %
+	private int pressure; // Pa
+	private int dataLength;
 
 	// OUT
 	private int motor;
@@ -95,11 +98,16 @@ class MainView extends LinearLayout {
 			@Override
 			public void onReceive(org.microbridge.server.Client client,
 					byte[] data) {
-				if (data.length < 2)
+				dataLength = data.length;
+				
+				if (data.length < 8)
 					return;
 
 				int thermoValue = (data[0] & 0xff) | ((data[1] & 0xff) << 8);
-				update(thermoValue);
+				int humidityValue = (data[2] & 0xff) | ((data[3] & 0xff) << 8);
+				long pressureValue = (data[4] & 0xff) | ((data[5] & 0xff) << 8)
+						| ((data[6] & 0xff) << 16) | ((data[7] & 0xff) << 24);
+				update(thermoValue, humidityValue, pressureValue);
 			};
 		});
 
@@ -154,9 +162,11 @@ class MainView extends LinearLayout {
 		}
 	}
 
-	private void update(int thermoValue) {
+	private void update(int thermoValue, int humidityValue, long pressureValue) {
 		// Calc values
 		temperature = (thermoValue * (5.0 / 1024)) * 100; // Voltage * 100C
+		humidity = (humidityValue * (5.0 / 1024)) * 100; // Voltage * 100%
+		pressure = (int)pressureValue;
 
 		// PUT to COSM
 		Context context = getContext();
@@ -171,7 +181,11 @@ class MainView extends LinearLayout {
 		try {
 			entity = new StringEntity(
 					"{\"datastreams\":[{\"id\":\"temperature\",\"current_value\":\""
-							+ temperature + "\"}]}", "UTF-8");
+							+ temperature
+							+ "\"},{\"id\":\"humidity\",\"current_value\":\""
+							+ humidity
+							+ "\"},{\"id\":\"pressure\",\"current_value\":\""
+							+ pressure + "\"}]}", "UTF-8");
 			entity.setContentType("application/x-www-form-urlencoded");
 			request.setEntity(entity);
 
@@ -187,7 +201,7 @@ class MainView extends LinearLayout {
 		}
 
 		// Draw
-		postInvalidate();	
+		postInvalidate();
 	}
 
 	@Override
@@ -197,6 +211,18 @@ class MainView extends LinearLayout {
 		// Temperature
 		textView = (TextView) findViewById(R.id.thermo_label);
 		textView.setText("temperature:" + temperature);
+
+		// Humidity
+		textView = (TextView) findViewById(R.id.humidity_label);
+		textView.setText("humidity:" + humidity);
+
+		// Pressure
+		textView = (TextView) findViewById(R.id.pressure_label);
+		textView.setText("pressure:" + pressure);
+
+		// Data Length
+		textView = (TextView) findViewById(R.id.data_label);
+		textView.setText("data:" + dataLength);
 
 		// Datetime
 		Date date = new Date();

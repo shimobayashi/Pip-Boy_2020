@@ -19,6 +19,18 @@
         android:layout_height="wrap_content"
         android:text="thermo_label" />
 
+    <TextView
+        android:id="@+id/humidity_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="humidity_label" />
+
+    <TextView
+        android:id="@+id/pressure_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="pressure_label" />
+
     <SeekBar
         android:id="@+id/motor_seekbar"
         android:layout_width="match_parent"
@@ -34,5 +46,11 @@
         android:layout_margin="32dip"
         android:max="255"
         android:progress="0" />
+
+    <TextView
+        android:id="@+id/data_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="data_label" />
 
 </LinearLayout>
