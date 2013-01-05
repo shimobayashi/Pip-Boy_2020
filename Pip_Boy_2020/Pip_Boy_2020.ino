@@ -99,7 +99,7 @@ void setup()
 void loop()
 {
   // Polling for sensors
-  if ((millis() - lastTime) > 1000)
+  if ((millis() - lastTime) > 10000)
   {
     // Pressure
     float temperature = bmp085GetTemperature(bmp085ReadUT()); //MUST be called first
