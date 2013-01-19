@@ -6,6 +6,7 @@ import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
@@ -85,6 +86,7 @@ class MainView extends LinearLayout {
 	private double humidity; // %
 	private int pressure; // Pa
 	private int dataLength;
+	private int responseCode = 0;
 
 	// OUT
 	private int motor;
@@ -169,6 +171,7 @@ class MainView extends LinearLayout {
 		pressure = (int)pressureValue;
 
 		// PUT to COSM
+		responseCode = -1;
 		Context context = getContext();
 		SharedPreferences sp = PreferenceManager
 				.getDefaultSharedPreferences(context);
@@ -191,7 +194,8 @@ class MainView extends LinearLayout {
 
 			// Do PUT
 			DefaultHttpClient httpClient = new DefaultHttpClient();
-			httpClient.execute(request);
+			HttpResponse response = httpClient.execute(request);
+			responseCode = response.getStatusLine().getStatusCode();
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		} catch (ClientProtocolException e) {
@@ -223,6 +227,10 @@ class MainView extends LinearLayout {
 		// Data Length
 		textView = (TextView) findViewById(R.id.data_label);
 		textView.setText("data:" + dataLength);
+
+		// Data Length
+		textView = (TextView) findViewById(R.id.status_label);
+		textView.setText("status:" + responseCode);
 
 		// Datetime
 		Date date = new Date();
